@@ -1,0 +1,98 @@
+=== PROJECT CONTEXT MEMORY ===
+
+ДАТА: 03.05.2026
+ПРОЕКТ: Blog API (Go + PHP + PostgreSQL + Firebase Auth)
+
+ЦЕЛЬ: Учебный проект для изучения Go в PHP-среде с подключением к БД + авторизация через Firebase
+
+АРХИТЕКТУРА:
+- Go backend: REST API на Gin (порт 8080)
+- PHP frontend: MVC паттерн, XAMPP (порт 80)
+- PostgreSQL: БД "blog", таблицы posts, users, sessions, auth_logs, rate_limits
+- Firebase Authentication: email/password верификация
+- Путь к PHP сайту: C:\xampp\htdocs\blog\
+
+ФАЙЛЫ ПРОЕКТА:
+- Go: C:\Projects\Go\1\blog\go\
+- PHP: C:\xampp\htdocs\blog\
+- Context: C:\Projects\Go\1\blog\context_memory.txt
+
+ТАБЛИЦЫ БД:
+- posts: id, title, content, category, created_at, updated_at
+- users: id, firebase_uid UNIQUE, email, display_name, email_verified, last_login, created_at, updated_at
+- sessions: id, user_id, token, ip_address, user_agent, expires_at, created_at
+- auth_logs: id, user_id, action, ip_address, user_agent, success, details, created_at
+- rate_limits: id, identifier, action, attempts, locked_until, created_at, updated_at
+
+GO BACKEND (C:\Projects\Go\1\blog\go\):
+- cmd/main.go: точка входа
+- internal/model/auth.go: модели User, Session, AuthLog, RateLimit, FirebaseUser
+- internal/repository/auth.go: работа с БД (CREATE USER, sessions, логирование)
+- internal/service/auth.go: Firebase + бизнес-логика (верификация токена, login, logout, rate limiting)
+- internal/handler/auth.go: API эндпоинты (/auth/login, /auth/logout, /auth/verify, /auth/reset-password, /auth/me)
+- internal/middleware/auth.go: защита роутов (RequireAuth)
+- firebase-config.json: credentials для Firebase (нужен Private Key)
+
+API ЭНДПОИНТЫ:
+- POST /auth/login - вход (принимает id_token от Firebase, возвращает сессию)
+- POST /auth/logout - выход
+- GET /auth/verify - проверка сессии
+- POST /auth/reset-password - сброс пароля через Firebase
+- GET /auth/me - данные пользователя (защищённый роут)
+- POST /api/posts - создать пост
+- GET /api/posts - список постов
+- GET /api/posts/:id - один пост
+- PUT /api/posts/:id - обновить пост
+- DELETE /api/posts/:id - удалить пост
+
+PHP FRONTEND (C:\xampp\htdocs\blog\):
+- index.php: главная страница (доступна всем)
+- auth.php: авторизация/регистрация/сброс пароля (JavaScript + Firebase SDK)
+- post.php: создание/редактирование поста (требует авторизацию)
+- src/Auth.php: requireAuth() - проверка авторизации
+- src/Model/AuthModel.php: работа с сессиями
+- src/Model/ApiClient.php: HTTP клиент для Go API
+- src/Model/PostModel.php: посты
+- src/Controller/PostController.php: контроллер постов
+- src/View/PostView.php: представление постов
+- styles.css, form.css: стили
+
+FIREBASE КОНФИГ:
+- apiKey: AIzaSyCkd2GfwV1F90VneqM5ghODL8or24pL6pU
+- authDomain: testsmsactivate-88af1.firebaseapp.com
+- projectId: testsmsactivate-88af1
+- appId: 1:1020083323234:web:64b2b939bd71d12c052c3b
+- measurementId: G-CDN7MGHGFX
+
+МЕРЫ БЕЗОПАСНОСТИ:
+- Rate limiting: 5 попыток за 15 минут, блокировка на 15 мин
+- Привязка сессии к IP
+- Логирование всех действий (auth_logs)
+- Email verification обязателен перед входом
+- Подготовленные выражения в SQL (защита от инъекций)
+- Сессии истекают через 7 дней
+
+ФУНКЦИОНАЛ:
+- Регистрация на той же странице что и вход
+- Подтверждение email при регистрации (sendEmailVerification)
+- Сброс пароля (sendPasswordResetEmail)
+- Главная - всем
+- post.php - только авторизованным (редирект на /auth.php)
+- Кнопка "Написать статью" - только авторизованным
+
+ТЕКУЩЕЕ СОСТОЯНИЕ:
+- Go сервер работает на localhost:8080
+- PHP сайт работает на http://localhost/blog/
+- Авторизация: http://localhost/blog/auth.php
+
+ПОСЛЕДНИЕ ИЗМЕНЕНИЯ (03.05.2026):
+1. Добавлена Firebase Authentication
+2. Созданы таблицы users, sessions, auth_logs, rate_limits
+3. Создан Go backend с Firebase верификацией
+4. Добавлен PHP frontend авторизации
+5. Защита post.php через requireAuth()
+6. Добавлена регистрация (createUserWithEmailAndPassword + sendEmailVerification)
+7. Убран Google Login
+8. Исправлены ошибки session_start и CSS стилей
+
+=== END ===
